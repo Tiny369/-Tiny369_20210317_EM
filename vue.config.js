@@ -3,6 +3,8 @@ module.exports = {
     devServer:{
         open:true
     },
+    // 关闭Eslint的规则
+    lintOnSave:false
     // 原生webpack配置
     /* configureWebpack:{
     } */
