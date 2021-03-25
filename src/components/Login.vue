@@ -68,7 +68,7 @@
                  *      1.1 项目中除了登录之外的其他API接口,必须在登录之后才能访问
                  *      1.2 token只应在当前网站打开期间生效,所以将token保存在sessionstorage中
                  */
-                console.log(res);
+                // console.log(res);
                 window.sessionStorage.setItem('token_key',res.data.token)
                 /*  2.通过编程式导航跳转到后台主页,路由地址是/home
                  */
