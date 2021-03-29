@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import Login from './components/Login.vue'
 // 引入Home组件
 import Home from './components/Home.vue'
+// 引入Welcome组件
+import Welcome from './components/Welcome.vue'
 
 Vue.use(Router)
 
@@ -12,7 +14,15 @@ let router = new Router({
     routes: [
         { path:'',redirect:'/login' },  // 重定向
         { path:'/login',component:Login },
-        { path:'/home',component:Home }
+        { 
+            path:'/home',
+            component:Home,
+            // redirect:'/welcome',
+            children:[
+                { path:'/welcome',component:Welcome },
+                { path:'/home',redirect:'/welcome' },
+            ] 
+        }
     ]
 })
 
@@ -29,5 +39,6 @@ router.beforeEach((to,from,next)=>{
     if(!token) return next('/login')
     next()
 })
+
 
 export default router
