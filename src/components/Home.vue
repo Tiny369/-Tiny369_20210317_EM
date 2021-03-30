@@ -15,7 +15,9 @@
         <!-- 折叠与展开元素 -->
         <div class="toggle_button" @click="toggleCollapse">|||</div>
         <!-- 侧边栏菜单区域 -->
-        <el-menu  background-color="#0f1624" text-color="#fff" active-text-color="#409EFF" :unique-opened="true" :collapse="isCollapse" :collapse-transition="false">
+        <el-menu  background-color="#0f1624" text-color="#fff" active-text-color="#409EFF" 
+        :unique-opened="true" :collapse="isCollapse" :collapse-transition="false" :router="true" 
+        :default-active="activePath">
           <!-- 一级菜单 -->
           <!-- <el-submenu index="1" > -->
           <el-submenu :index="(item.id).toString()" v-for="item in menulist" :key="item.id">
@@ -30,8 +32,10 @@
             </template>
             <!-- 二级菜单 -->
             <!-- <el-menu-item index="1-4-1"> -->
-            <el-menu-item :index="(subItem.id).toString()"  v-for="subItem in item.children" :key="subItem.id">
-              <template slot="title">
+            <!-- <el-menu-item :index="(subItem.id).toString()"  v-for="subItem in item.children" :key="subItem.id"> -->
+            <el-menu-item :index=" '/' + subItem.path "  v-for="subItem in item.children" 
+            :key="subItem.id" @click="saveNavState('/' + subItem.path)">
+              <template slot="title" >
                 <!-- 图标 -->
                 <!-- <i class="el-icon-location"></i> -->
                 <i class="el-icon-menu"></i>
@@ -67,11 +71,14 @@
           '145': 'iconfont icon-baobiao'
         },
         // 是否折叠
-        isCollapse:false
+        isCollapse:false,
+        // 被激活的链接地址
+        activePath:''
       }
     },
     created() {   // 加载后立即获取菜单
-      this.getMenuList()
+      this.getMenuList()  // 加载后获取所有的菜单
+      this.activePath = window.sessionStorage.getItem('activePath') // 加载后读取sessionStorage值赋值给activePath
     },
     methods: {
       // 退出功能点击事件
@@ -95,6 +102,11 @@
       toggleCollapse (){
         this.isCollapse = !this.isCollapse
       },
+      // 保存链接的激活状态点击事件
+      saveNavState (activePath){
+        window.sessionStorage.setItem('activePath',activePath)
+        this.activePath = activePath
+      }
     },
    
   }

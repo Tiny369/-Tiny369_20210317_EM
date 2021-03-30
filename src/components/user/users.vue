@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>welCome</h3>
+    <h3>users组件</h3>
   </div>
 </template>
 
@@ -9,7 +9,6 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
  
 </style>

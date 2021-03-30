@@ -6,6 +6,8 @@ import Login from './components/Login.vue'
 import Home from './components/Home.vue'
 // 引入Welcome组件
 import Welcome from './components/Welcome.vue'
+// 引入users组件
+import users from './components/user/users.vue'
 
 Vue.use(Router)
 
@@ -19,8 +21,9 @@ let router = new Router({
             component:Home,
             // redirect:'/welcome',
             children:[
-                { path:'/welcome',component:Welcome },
                 { path:'/home',redirect:'/welcome' },
+                { path:'/welcome',component:Welcome },
+                { path:'/users',component:users },
             ] 
         }
     ]
