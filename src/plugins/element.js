@@ -15,7 +15,9 @@ import {
     Container,
     Header,Aside,Main,
     Menu,Submenu,MenuItemGroup,MenuItem,
-    Breadcrumb,BreadcrumbItem,Card,Row,Col,Table,TableColumn
+    Breadcrumb,BreadcrumbItem,Card,Row,Col,Table,TableColumn,
+    Switch,Tooltip,
+    Pagination,Dialog
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -37,6 +39,10 @@ Vue.use(Row);
 Vue.use(Col);
 Vue.use(Table);
 Vue.use(TableColumn);
+Vue.use(Switch);
+Vue.use(Tooltip);
+Vue.use(Pagination);
+Vue.use(Dialog);
 
 // 全局挂载
 Vue.prototype.$message = Message 
