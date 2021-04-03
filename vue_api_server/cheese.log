@@ -222,3 +222,19 @@
 [2021-04-01T18:23:09.742] [DEBUG] cheese - admin
 [2021-04-01T18:23:09.745] [DEBUG] cheese - null
 [2021-04-01T18:23:09.745] [DEBUG] cheese - null
+[2021-04-03T09:37:45.349] [DEBUG] cheese - login => username:admin,password:123456
+[2021-04-03T09:37:45.350] [DEBUG] cheese - admin
+[2021-04-03T09:37:45.365] [DEBUG] cheese - null
+[2021-04-03T09:37:45.366] [DEBUG] cheese - null
+[2021-04-03T09:39:22.009] [DEBUG] cheese - login => username:admin,password:123456
+[2021-04-03T09:39:22.009] [DEBUG] cheese - admin
+[2021-04-03T09:39:22.014] [DEBUG] cheese - null
+[2021-04-03T09:39:22.014] [DEBUG] cheese - null
+[2021-04-03T17:25:00.861] [DEBUG] cheese - login => username:admin,password:123456
+[2021-04-03T17:25:00.862] [DEBUG] cheese - admin
+[2021-04-03T17:25:00.870] [DEBUG] cheese - null
+[2021-04-03T17:25:00.871] [DEBUG] cheese - null
+[2021-04-03T17:51:16.484] [DEBUG] cheese - login => username:admin,password:123456
+[2021-04-03T17:51:16.484] [DEBUG] cheese - admin
+[2021-04-03T17:51:16.487] [DEBUG] cheese - null
+[2021-04-03T17:51:16.487] [DEBUG] cheese - null
