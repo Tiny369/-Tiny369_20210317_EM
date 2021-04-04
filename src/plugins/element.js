@@ -17,7 +17,7 @@ import {
     Menu,Submenu,MenuItemGroup,MenuItem,
     Breadcrumb,BreadcrumbItem,Card,Row,Col,Table,TableColumn,
     Switch,Tooltip,
-    Pagination,Dialog
+    Pagination,Dialog,MessageBox
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -44,5 +44,8 @@ Vue.use(Tooltip);
 Vue.use(Pagination);
 Vue.use(Dialog);
 
-// 全局挂载
+// 全局挂载Message消息提示
 Vue.prototype.$message = Message 
+// 全局挂载MessageBox弹框
+Vue.prototype.$confirm = MessageBox.confirm 
+

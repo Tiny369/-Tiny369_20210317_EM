@@ -39,7 +39,7 @@
             <!-- 修改按钮 -->
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
             <!-- 删除按钮 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
             <!-- 分配角色按钮 -->
             <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
@@ -100,7 +100,6 @@
       </span>
     </el-dialog>
 
-
   </div>
 </template>
 
@@ -113,7 +112,7 @@
         const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
         if(regEmail.test(value)){    // 合法的邮箱
           return callback() 
-        }else{
+        }else{  // 输入的不合法抛出异常提示
           callback(new Error('请输入合法的邮箱'))
         }
       }
@@ -123,7 +122,7 @@
         const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
         if(regMobile.test(value)){     // 合法的手机号
           return callback()
-        }else{
+        }else{  // 输入的不合法抛出异常提示
           callback(new Error('请输入合法的手机号'))
         }
       }
@@ -142,10 +141,10 @@
         addDialogVisible:false,
         // 添加用户的表单对象
         addFrom:{
-          username:'',
-          password:'',
-          email:'',
-          mobile:'',
+          username:'',  // 用户名
+          password:'',  // 密码
+          email:'', // 邮箱
+          mobile:'',  // 手机号
         },
         // 添加表单的验证规则对象
         addFromRules:{
@@ -172,18 +171,18 @@
         editForm:{},
         // 修改表单的验证规则对象
         editFormRules:{
-          email: [    
+          email: [    // 邮箱
             { required: true, message: '请输入邮箱', trigger: 'blur' },
             { validator: checkEmail, trigger: 'blur' }  // 邮箱自定义规则 -- 
           ],
-          mobile: [   
+          mobile: [   // 手机号
             { required: true, message: '请输入手机号', trigger: 'blur' },
             { validator: checkMobile, trigger: 'blur' }  // 手机号自定义规则 -- 
           ],
         }
       }
     },
-    created() {
+    created() { // 创建实例后获取用户列表
       this.getUserList()
     },
     methods: {
@@ -193,23 +192,28 @@
         let {data:res} = await this.$http.get('users',{
           params:this.queryInfo
         })
+        // 判断返回的状态码部位200则提示获取失败信息
         if(res.meta.status !== 200) return this.$message.error('获取用户列表失败')
         // 将获取到的用户列表赋给userlist
         this.userlist = res.data.users
         // 将获取到的总数量赋给total
         this.total = res.data.total
-        console.log(res);
+        // console.log(res);
       },
       // 监听 pagsize 改变的事件
       handleSizeChange (newSize){
         // console.log(newSize);
+        // 将改变的值赋给获取用户列表的参数对象的对应值
         this.queryInfo.pagesize = newSize
+        // 刷新用户列表
         this.getUserList()
       },
       // 监听 页码值 改变的事件
       handleCurrentChange (newPage){
         // console.log(newPage);
+        // 将改变的值赋给获取用户列表的参数对象的对应值
         this.queryInfo.pagenum = newPage
+        // 刷新用户列表
         this.getUserList()
       },
       // 监听 switch 开关状态的事件
@@ -231,6 +235,7 @@
       },
       // 添加新用户的点击事件
       addUser (){
+        // 预验证 参数为箭头函数 返回一个boolean值
         this.$refs.addFormRef.validate(async valid=>{
           // console.log(valid);
           if(!valid) return
@@ -277,7 +282,33 @@
           // 提示修改成功
           this.$message.success('更新用户信息成功');
         })
-      }
+      },
+      // 根据ID删除对应的y用户信息的点击事件
+      async removeUserById (id){
+        // 弹框询问用户是否删除数据
+        let confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).catch(err => err)
+        // 如果用户点击确认删除，返回一个confirm字符串
+        // 如果用户点击取消，返回一个cancel字符串
+        if(confirmResult != 'confirm'){
+          return this.$message.info('已取消删除')
+        }
+        // console.log('删除了用户');
+        // 发送删除用户的请求
+        let { data:res } = await this.$http.delete('users/'+id)
+        // 状态码不为200则删除失败并给出提示
+        if(res.meta.status !== 200){
+          this.$message.error('删除用户失败!')
+        }
+        // 提示删除用户成功
+        this.$message.success('删除用户成功');
+        // 刷新用户列表
+        this.getUserList()
+      },
+
     },
   }
 </script>
