@@ -49,7 +49,7 @@
             if(res.meta.status !== 200) return this.$message.error('获取权限列表失败')
             // 获取成功后赋给定义的权限列表
             this.rightsList = res.data
-            console.log(this.rightsList);
+            // console.log(this.rightsList);
         }
     },
   }
