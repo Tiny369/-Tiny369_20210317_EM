@@ -3,12 +3,13 @@ html,body,#app {
     height: 100%;
     margin: 0;
     padding: 0; 
+    min-width:1360px;
 }
 
 /* 面包屑导航样式 */
 .el-breadcrumb {
     margin-bottom: 15px;
-    font-size: 12px;
+    /* font-size: 12px; */
 }
 /* 卡片视图样式 */
 .el-card {
@@ -17,7 +18,7 @@ html,body,#app {
 /* 用户列表表格样式 */
 .el-table {
     margin-top: 15px;
-    font-size: 12px;
+    /* font-size: 12px; */
 }
 /* 分页区域样式 */
 .el-pagination {

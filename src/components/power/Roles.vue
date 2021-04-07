@@ -15,14 +15,40 @@
           <el-button type="primary" @click="addRoleDialogVisible=true">添加角色</el-button>
         </el-col>
       </el-row>
-      <!-- 使用表格渲染角色列表 -->
+      <!-- 角色列表区域 -->
       <el-table :data="rolesList" style="width: 100%">
-        <el-table-column  type="expand" ></el-table-column>
+        <!-- 展开列 -->
+        <el-table-column  type="expand" >
+          <template v-slot:default="slotProps">  <!-- 使用作用域插槽 -->
+            <el-row :class="['bdbottom',(i1 == 0 ? 'bdtop' : ''),'vcenter']" v-for="(item1,i1) in slotProps.row.children" :key="item1.id">
+              <!-- 渲染一级权限 -->
+              <el-col :span="5">
+                <el-tag >{{item1.authName}}</el-tag>
+                <i class="el-icon-caret-right"></i>
+              </el-col>
+              <!-- 渲染二级和三级权限 -->
+              <el-col :span="19">
+                <!-- 通过for循环 嵌套渲染二级权限 -->
+                <el-row :class="(i2 ==0 ?'':'bdtop','vcenter') " v-for="(item2,i2) in item1.children" :key="item2.id">
+                  <el-col :span="6">
+                    <el-tag type="success">{{item2.authName}}</el-tag>
+                    <i class="el-icon-caret-right"></i>
+                  </el-col>
+                  <el-col :span="18">
+                    <el-tag type="warning" v-for="(item3,i3) in item2.children" :key="item3.id">{{item3.authName}}</el-tag>
+                  </el-col>
+                </el-row>
+              </el-col>
+            </el-row>
+            <!-- <pre>{{slotProps.row}}</pre> -->
+          </template>
+        </el-table-column>
+        <!-- 索引列 -->
         <el-table-column  label="#" type="index" ></el-table-column>
         <el-table-column  label="角色名称" prop="roleName" ></el-table-column>
         <el-table-column  label="角色描述" prop="roleDesc" ></el-table-column>
         <el-table-column  label="操作" width='300px'>
-          <template slot-scope="scope">
+          <template slot-scope="scope">  <!-- 使用作用域插槽 -->
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditRoleDialog(scope.row.id)">编辑</el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeRoleById(scope.row.id)">删除</el-button>
             <el-button type="warning" icon="el-icon-setting" size="mini">分配权限</el-button>
@@ -120,6 +146,7 @@ export default {
       if(res.meta.status !== 200) return this.$message.error('角色列表获取失败!')
       // 获取成功赋值给初始的角色列表
       this.rolesList = res.data
+      console.log(this.rolesList);
     },
     // 添加角色对话框的监听事件
     addRoleDialogClosed (){
@@ -214,5 +241,24 @@ export default {
   // 添加角色按钮区域样式
   .el-row {
     margin-bottom: 5px;
+  }
+  // tag标签样式
+  .el-tag {
+    margin: 7px;
+  }
+  // 顶部边框
+  .bdtop {
+    //  #eee
+    border-top: 1px solid rgb(238, 8, 207);
+  }
+  // 底部边框
+  .bdbottom {
+    // #eee
+    border-bottom: 1px solid rgb(238, 8, 207);
+  }
+  // 一级和二级权限列表的垂直/纵向居中
+  .vcenter {
+    display: flex;
+    align-items: center;
   }
 </style>
