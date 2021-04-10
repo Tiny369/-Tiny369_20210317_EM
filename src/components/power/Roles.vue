@@ -92,12 +92,13 @@
   </el-dialog>
 
   <!-- 分配权限的Dialog -->
-  <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="30%" >
+  <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="30%" @close="setRightDialogClosed">
     <!-- 树形控件 -->
-    <el-tree :data="rightsList" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys"></el-tree>
+    <el-tree :data="rightsList" :props="treeProps" show-checkbox node-key="id" 
+    default-expand-all :default-checked-keys="defKeys" ref="treeRef"></el-tree>
     <span slot="footer" class="dialog-footer">
       <el-button @click="setRightDialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="setRightDialogVisible = false">确 定</el-button>
+      <el-button type="primary" @click="allotRights">确 定</el-button>
     </span>
   </el-dialog>
 
@@ -153,7 +154,9 @@ export default {
         label: 'authName' // 展示的名称
       },
       // 默认选中的节点Id值数组
-      defKeys:[]
+      defKeys:[],
+      // 当前即将分配权限的角色ID
+      roleId:''
     }
   },
   created() {
@@ -267,6 +270,8 @@ export default {
     },
     // 展示分配权限对话框的监听事件
     async showSetRightDialog (role){
+      // 保存角色ID ,用于角色分配权限
+      this.roleId = role.id
       // 发送获取权限数据的请求，以树状展示
       let { data:res } = await this.$http.get('rights/tree')
       // 根据状态码判断是否获取成功
@@ -286,6 +291,28 @@ export default {
         return arr.push(node.id) 
       }
       node.children.forEach(item => this.getLeafKeys(item,arr))
+    },
+    // 监听分配权限对话框的关闭事件
+    setRightDialogClosed (){
+      // 清空
+      this.defKeys = []
+    },
+    // 点击确定为角色分配权限
+    async allotRights (){
+      // 获取选中和半选中的节点的Id 生成一个数组
+      let keys = [ ...this.$refs.treeRef.getCheckedKeys(),...this.$refs.treeRef.getHalfCheckedKeys()]
+      // 以 `,` 分割的权限 ID 列表
+      let idStr = keys.join(',')
+      // 发送角色分配权限请求
+      let { data:res } = await this.$http.post(`roles/${this.roleId}/rights`,{ rids:idStr })
+      // 根据响应状态码判断是否修改成功
+      if(res.meta.status !== 200) return this.$message.info('分配权限失败')
+      // 提示修改成功
+      this.$message.success('分配权限成功')
+      // 刷新角色列表
+      this.getRolesList()
+      // 关闭分配权限对话框
+      this.setRightDialogVisible = false
     }
 
   },
