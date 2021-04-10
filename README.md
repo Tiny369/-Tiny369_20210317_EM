@@ -21,9 +21,14 @@ npm run lint
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ### Master Branch
 UpDate 20210404 11:33
 =======
 ### User Branch
 update 20210404 11：40
 >>>>>>> user
+=======
+### rights Branch
+update 20210410 13:50
+>>>>>>> rights
