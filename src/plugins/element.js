@@ -19,7 +19,8 @@ import {
     Switch,Tooltip,
     Pagination,Dialog,MessageBox,
     Tag,Tree,
-    Select,Option
+    Select,Option,
+    Cascader
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -49,6 +50,7 @@ Vue.use(Tag);
 Vue.use(Tree);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(Cascader);
 
 // 全局挂载Message消息提示
 Vue.prototype.$message = Message 

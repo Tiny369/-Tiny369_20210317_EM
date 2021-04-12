@@ -12,12 +12,12 @@
       <!-- 添加分类按钮区域 -->
       <el-row>
         <el-col>
-          <el-button type="primary">添加分类</el-button>
+          <el-button type="primary" @click="showAddCateDialog">添加分类</el-button>
         </el-col>
       </el-row>
       
       <!-- 表格 -->
-      <tree-table :data="cateList" :columns="columns" :selection-type="false" :expand-type="false"
+      <tree-table class="treeTable" :data="cateList" :columns="columns" :selection-type="false" :expand-type="false"
         show-index index-text="#" border :show-row-hover="false">
         <!-- 是否有效列 -->
         <template slot="isok" slot-scope="scope">
@@ -45,6 +45,27 @@
       </el-pagination>
 
     </el-card>
+
+    <!-- 添加分类对话框区域 -->
+    <el-dialog  title="添加分类" :visible.sync="addCateDialogVisible" width="50%" >
+      <!-- 添加分类表单区域 -->
+      <el-form :model="addCateForm" :rules="addCateFormRules" ref="addCateFormRef" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="分类名称：" prop="cat_name">
+          <el-input v-model="addCateForm.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="父级分类：" >
+          <!-- 级联选择器 -->
+          <!-- v-model：选中的值 options：用来指定数据源 props:用来指定配置对象 @change：当选中节点变化时触发-->
+          <el-cascader v-model="selectedKeys" :options="parentCateList" 
+            :props="cascaderProps" @change="parentCateChange" clearable >
+          </el-cascader>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addCateDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
 
   </div>
 </template>
@@ -85,6 +106,32 @@
             template:'operate' // 表示当前这一列使用的模版名称
           }
         ],
+        // 控制添加分类对话框的显示与隐藏
+        addCateDialogVisible:false,
+        // 添加分类的表单数据对象
+        addCateForm:{
+          cat_pid:0,  // 父级分类的Id
+          cat_name:'',  // 要添加的分类名称
+          cat_level:0   // 分类的等级，默认要添加的时1级分类
+        },
+        // 添加分类表单的验证规则对象
+        addCateFormRules:{
+          cat_name: [
+            { required: true, message: '请输入分类名称', trigger: 'blur' },
+          ],
+        },
+        // 父级分类的数组列表 
+        parentCateList:[],
+        // 指定级联选择器的配置对象
+        cascaderProps: {
+          checkStrictly: true,  // 可选择任意一级选项
+          expandTrigger: 'hover', // 触发方式
+          value:'cat_id', // 选项的值
+          label:'cat_name', // 选项标签
+          children:'children' // 选项的子选项
+        },
+        // 选中的父级分类的Id数组
+        selectedKeys:[]
       }
     },
     created() { // 创建实例后调用获取商品分类列表的数据
@@ -101,7 +148,7 @@
         this.cateList = res.data.result
         // 将获取到的总数据条数赋值给data
         this.total = res.data.total
-        console.log(res.data);
+        // console.log(res.data);
       },
       // 监听 pagesize 改变
       handleSizeChange (newSize){
@@ -116,12 +163,42 @@
         this.queryInfo.pagenum = newPage
         // 刷新列表
         this.getCateList()
+      },
+      // 点击按钮显示添加分类对话框
+      showAddCateDialog (){
+        // 调用获取父级分类数据列表的方法
+        this.getParentCateList()
+        // 显示对话框
+        this.addCateDialogVisible = true
+      },
+      // 获取父级分类的数据列表
+      async getParentCateList (){
+        // 发送获取父级分类数据的请求
+        let { data:res } =  await this.$http.get('categories',{
+          params:{ type:2 } // 只获取一级和二级
+        })
+        // 根据响应状态码判断，提示
+        if(res.meta.status !== 200) this.$message.error('父级分类数据获取失败')
+        // 将获取到的父级分类数据保存给data
+        this.parentCateList = res.data
+        // console.log(this.parentCateList);
+      },
+      // 选择项发生变化触发这个函数
+      parentCateChange (){
+        console.log(this.selectedKeys);
       }
     },
   }
 </script>
 
 <style lang="less" scoped>
+// 第三方插件-表格样式
+.treeTable {
+  margin-top: 15px;
+}
+// 级联选择器样式
+.el-cascader {
+  width: 100% ;
+}
 
- 
 </style>
