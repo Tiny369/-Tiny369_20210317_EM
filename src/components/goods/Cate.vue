@@ -17,7 +17,7 @@
         </el-col>
       </el-row>
       
-      <!-- 表格 -->
+      <!-- 表格区域 -->
       <tree-table class="treeTable" :data="cateList" :columns="columns" :selection-type="false" :expand-type="false"
         show-index index-text="#" border :show-row-hover="false">
         <!-- 是否有效列 -->
