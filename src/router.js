@@ -12,6 +12,8 @@ import users from './components/user/users.vue'
 import Rights from './components/power/Rights.vue'
 // 引入Roles组件
 import Roles from './components/power/Roles.vue'
+// 引入Cate组件 /categories
+import Cate from './components/goods/Cate.vue'
 
 
 Vue.use(Router)
@@ -31,6 +33,7 @@ let router = new Router({
                 { path:'/users',component:users },
                 { path:'/rights',component:Rights },
                 { path:'/roles',component:Roles },
+                { path:'/categories',component:Cate },
             ] 
         }
     ]

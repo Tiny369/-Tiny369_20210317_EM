@@ -9,6 +9,8 @@ import './assets/fonts/iconfont.css'
 import './assets/css/Global.css'
 // 按需引入element
 import './plugins/element.js'
+// 引入第三方插件（vue-table-with-tree-grid）
+import ZkTable from 'vue-table-with-tree-grid'
 
 // 引入axios
 import axios from 'axios'
@@ -22,7 +24,8 @@ axios.interceptors.request.use((config)=>{
 })
 Vue.prototype.$http = axios
 
-
+// 注册第三方插件（vue-table-with-tree-grid）
+Vue.component('tree-table',ZkTable)
 
 Vue.config.productionTip = false
 
