@@ -1,4 +1,5 @@
 <template>
+<!-- 分类参数功能 -->
   <div>
      <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -16,7 +17,7 @@
         <el-col>
           <span>选择商品分类：</span>
           <!-- 级联选择框 -->
-          <el-cascader class="opt_cascader" v-model="selectedCateKeys" :options="cateList" :props="cateProps" @change="handleChange"></el-cascader>
+          <el-cascader class="opt_cascader" v-model="selectedCateKeys" :options="cateList" :props="cateProps" @change="handleChange" clearable></el-cascader>
         </el-col>
       </el-row>
       <!-- tab页签区域 -->
@@ -27,7 +28,20 @@
             :disabled="isBtnDisabled" @click="addDialogVisible = true">添加参数</el-button>
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" style="width: 100%">
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 渲染tag标签 -->
+                <el-tag v-for=" (item,i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i,scope.row)">{{item}}</el-tag>
+                <!-- 输入的文本框 -->
+                <el-input class="input-new-tag" v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue" ref="saveTagInput" size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)" 
+                  @blur="handleInputConfirm(scope.row)">
+                </el-input>
+                <!-- 添加按钮 -->
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
             <el-table-column label="#" type="index"></el-table-column>
             <el-table-column label="参数名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作" >
@@ -44,7 +58,20 @@
             :disabled="isBtnDisabled" @click="addDialogVisible = true">添加属性</el-button>
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" style="width: 100%">
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 渲染tag标签 -->
+                <el-tag v-for=" (item,i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i,scope.row)">{{item}}</el-tag>
+                <!-- 输入的文本框 -->
+                <el-input class="input-new-tag" v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue" ref="saveTagInput" size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)" 
+                  @blur="handleInputConfirm(scope.row)">
+                </el-input>
+                <!-- 添加按钮 -->
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(scope.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
             <el-table-column label="#" type="index"></el-table-column>
             <el-table-column label="属性名称" prop="attr_name"></el-table-column>
             <el-table-column label="操作" >
@@ -137,6 +164,12 @@
             { min: 2, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
           ],
         },
+       /*  // 控制按钮与文本框的切换显示
+        inputVisible:false, // 遍历每一项时定义
+        // 文本框中输入的内容
+        inputValue:'', // 遍历每一项时定义   */
+
+
       }
     },
     created() {   // 创建实例后
@@ -167,6 +200,8 @@
         // 证明选中的不是三级分类
         if(this.selectedCateKeys.length !== 3){
           this.selectedCateKeys = []
+          this.manyTableData = []
+          this.onlyTableData = []
           return
         }
         // 证明选中的是三级分类
@@ -176,7 +211,16 @@
           params:{ sel:this.activeName }
         })
         if(res.meta.status !== 200) return this.$message.error('参数列表获取失败')
-        // console.log(res.data);
+        
+        // 将数据下的attr_vals项，由字符串分割成数组，便于在折行下渲染
+        res.data.forEach(item => {
+          item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+          // 控制文本框的显示与隐藏（删除data中的定义）
+          item.inputVisible = false
+          // 文本框中输入的内容（删除data中的定义）
+          item.inputValue = ''
+        })
+        console.log(res.data);
         // 获取到的数据进行判断是动态的还是静态的
         if(this.activeName === 'many'){
           this.manyTableData = res.data
@@ -262,7 +306,55 @@
         // 刷新参数列表
         this.getParamsData()
       },
-       
+      // 文本框失去焦点，或按了Enter键 触发的函数
+      async handleInputConfirm (row){
+        if(row.inputValue.trim().length === 0){
+          row.inputValue = '' // 清空输入的数据
+          row.inputVisible = false  // 切换显示
+          return
+        }
+        // 如果没有return,则证明输入的内容,需要做后续处理
+        row.attr_vals.push(row.inputValue)    // 参数项添加输入的值
+        row.inputValue = ''   // 清空之前输入的数据
+        row.inputVisible = false  // 切换显示状态
+        /* // 发起请求，保存这次操作
+        // 发送编辑提交参数项的请求，注意参数（参数项必须返回字符串以空格分割给服务器）
+        let { data:res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`,{
+          attr_name:row.attr_name,
+          attr_sel:row.attr_sel,
+          attr_vals:row.attr_vals.join(' ')
+        })
+        if(res.meta.status !== 200) return this.$message.error('添加参数项失败！')
+        this.$message.success('添加参数项成功') */
+        this.saveAttrVals(row)    // 以上封装为公共函数
+      },
+      // 监听tag标签的关闭事件，删除标签
+      handleClose (i,row){  // 参数：索引和当前行信息
+        row.attr_vals.splice(i,1) // 删除一个索引项
+        this.saveAttrVals(row)  // 发请求
+      },
+      // 发起请求，保存这次操作的公共函数
+      async saveAttrVals(row){
+        // 发起请求，保存这次操作
+        // 发送编辑提交参数项的请求，注意参数（参数项必须返回字符串以空格分割给服务器）
+        let { data:res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`,{
+          attr_name:row.attr_name,
+          attr_sel:row.attr_sel,
+          attr_vals:row.attr_vals.join(' ')
+        })
+        if(res.meta.status !== 200) return this.$message.error('添加参数项失败！')
+        this.$message.success('添加参数项成功')
+      },
+      // 点击按钮展示文本输入框
+      showInput (row){
+        // this.inputVisible = true
+        // 遍历每一项是添加的属性，通过传参更改显示状态
+        row.inputVisible = true
+        // $nextTick方法的作用,就是当页面上元素被重新渲染之后,才会指定回调函数中的代码
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
     },
     computed:{
       // 如果按钮需要被禁用，返回true；否则返回false
@@ -294,7 +386,12 @@
   margin: 15px 0;
   font-size: 15px;
 }
+// 级联选择框样式
 .opt_cascader {
   width: 25%;
+}
+// 添加标签框的样式
+.input-new-tag {
+  width: 100px;
 }
 </style>
