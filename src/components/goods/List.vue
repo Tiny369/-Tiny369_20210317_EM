@@ -1,4 +1,5 @@
 <template>
+<!-- 商品列表功能 -->
   <div>
      <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -9,6 +10,7 @@
 
     <!-- 卡片视图区域 -->
     <el-card>
+      <!-- 搜索/添加商品区域 -->
       <el-row :gutter="20">
         <el-col :span="8">
           <el-input placeholder="请输入内容" class="input-with-select">
@@ -19,6 +21,20 @@
           <el-button type="primary" >添加商品</el-button>
         </el-col>
       </el-row>
+      <!-- 表格区域 -->
+      <el-table :data="goodsList" style="width: 100%" border>
+        <el-table-column label="#" type="index"></el-table-column>
+        <el-table-column label="商品名称" prop="goods_name"></el-table-column>
+        <el-table-column label="商品价格(元)" prop="goods_price"  width="105px"></el-table-column>
+        <el-table-column label="商品重量" prop="goods_weight"  width="80px"></el-table-column>
+        <el-table-column label="创建时间" prop="add_time"  width="140px"></el-table-column>
+        <el-table-column label="操作" width="130px">
+          <template slot-scope="scope">
+            <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
 
   </div>
@@ -26,6 +42,40 @@
 
 <script type="text/ecmascript-6">
   export default {
+    data() {
+      return {
+        // 查询参数对象
+        queryInfo:{
+          query:'',   // 查询参数
+          pagenum:1,    // 当前页码
+          pagesize:10   // 每页显示条数
+        },
+        // 商品列表数据
+        goodsList:[],
+        // 总数据条数
+        total:0
+      }
+    },
+    created() {   // 实例创建后调用获取数据函数
+      this.getGoodsList()
+    },
+    methods: {
+      // 获取商品列表数据的函数
+      async getGoodsList (){
+        // 发送获取列表数据的请求，注意请求参数
+        let { data:res } = await this.$http.get('goods',{
+          params:this.queryInfo
+        })
+        if(res.meta.status !== 200) return this.$message.error('获取商品列表数据失败')
+        this.$message.success('获取商品列表数据成功')
+        // console.log(res.data);
+        // 将获取到的数据保存到data中
+        this.goodsList = res.data.goods
+        // 将获取到的总数量保存到data中
+        this.total = res.data.total
+        console.log(this.goodsList);
+      },
+    },
   }
 </script>
 
