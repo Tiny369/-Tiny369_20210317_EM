@@ -16,6 +16,8 @@ import Roles from './components/power/Roles.vue'
 import Cate from './components/goods/Cate.vue'
 // 引入Params组件 
 import Params from './components/goods/Params.vue'
+// 引入List组件 
+import goodsList from './components/goods/List.vue'
 
 
 Vue.use(Router)
@@ -37,6 +39,7 @@ let router = new Router({
                 { path:'/roles',component:Roles },
                 { path:'/params',component:Params },
                 { path:'/categories',component:Cate },
+                { path:'/goods',component:goodsList },
             ] 
         }
     ]
