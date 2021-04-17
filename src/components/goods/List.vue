@@ -27,7 +27,11 @@
         <el-table-column label="商品名称" prop="goods_name"></el-table-column>
         <el-table-column label="商品价格(元)" prop="goods_price"  width="105px"></el-table-column>
         <el-table-column label="商品重量" prop="goods_weight"  width="80px"></el-table-column>
-        <el-table-column label="创建时间" prop="add_time"  width="140px"></el-table-column>
+        <el-table-column label="创建时间" prop="add_time"  width="160px">
+          <template slot-scope="scope">
+            {{scope.row.add_time | dateFormat}}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="130px">
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
@@ -35,6 +39,11 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页区域 -->
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        :current-page="this.queryInfo.pagenum" :page-sizes="[5, 10, 15, 20]" background
+        :page-size="this.queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
     </el-card>
 
   </div>
@@ -73,7 +82,17 @@
         this.goodsList = res.data.goods
         // 将获取到的总数量保存到data中
         this.total = res.data.total
-        console.log(this.goodsList);
+        // console.log(this.goodsList);
+      },
+      // 监听每页条数的事件
+      handleSizeChange (newVal){
+        this.queryInfo.pagesize = newVal
+        this.getGoodsList()
+      },
+      // 监听当前页码的事件
+      handleCurrentChange (newVal){
+        this.queryInfo.pagenum = newVal
+        this.getGoodsList()
       },
     },
   }

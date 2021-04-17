@@ -27,6 +27,18 @@ Vue.prototype.$http = axios
 // 注册第三方插件（vue-table-with-tree-grid）
 Vue.component('tree-table',ZkTable)
 
+// 创建全局事件过滤器，处理时间格式
+Vue.filter('dateFormat',function (originVal){
+  let dt = new Date(originVal)
+  let y = dt.getFullYear()
+  let m = (dt.getMonth() + 1 + '').padStart(2,'0')
+  let d = (dt.getDate()  + '').padStart(2,'0')
+  let hh = (dt.getHours()  + '').padStart(2,'0')
+  let mm = (dt.getMinutes()  + '').padStart(2,'0')
+  let ss = (dt.getSeconds()  + '').padStart(2,'0')
+  return  `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+})
+
 Vue.config.productionTip = false
 
 new Vue({
