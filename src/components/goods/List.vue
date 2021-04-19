@@ -13,12 +13,13 @@
       <!-- 搜索/添加商品区域 -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入内容" class="input-with-select">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入内容" class="input-with-select" 
+            v-model="queryInfo.query" clearable @clear="getGoodsList">
+            <el-button slot="append" icon="el-icon-search" @click="getGoodsList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" >添加商品</el-button>
+          <el-button type="primary" @click="goAddPage">添加商品</el-button>
         </el-col>
       </el-row>
       <!-- 表格区域 -->
@@ -35,7 +36,7 @@
         <el-table-column label="操作" width="130px">
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeById(scope.row.goods_id)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -93,6 +94,25 @@
       handleCurrentChange (newVal){
         this.queryInfo.pagenum = newVal
         this.getGoodsList()
+      },
+      // 点击按钮，删除商品事件
+      async removeById (id){
+        // 弹框提示是否删除该商品
+        let resfirm = await this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).catch(err => err)
+        if(resfirm !== 'confirm') return this.$message.info('用户取消删除')
+        // 发送删除当前商品的请求，注意参数
+        let { data:res } = await this.$http.delete('goods/'+id)
+        if(res.meta.status !== 200) return this.$message.error('删除商品失败')
+        this.$message.success('删除商品成功')
+        this.getGoodsList()
+      },
+      // 点击按钮，跳转至添加商品属性的页面事件
+      goAddPage (){
+        this.$router.push('/goods/add')
       },
     },
   }

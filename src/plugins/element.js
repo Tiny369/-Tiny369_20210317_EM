@@ -22,7 +22,8 @@ import {
     Select,Option,
     Cascader,
     Alert,
-    Tabs,TabPane
+    Tabs,TabPane,
+    Steps,Step
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -56,6 +57,8 @@ Vue.use(Cascader);
 Vue.use(Alert);
 Vue.use(Tabs);
 Vue.use(TabPane);
+Vue.use(Steps);
+Vue.use(Step);
 
 // 全局挂载Message消息提示
 Vue.prototype.$message = Message 

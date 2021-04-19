@@ -28,3 +28,11 @@ html,body,#app {
 .el-cascader-panel {
     height: 200px;
   }
+
+  /* 步骤条样式 */
+.el-steps {
+    margin: 15px 0;
+}
+.el-step__main>.el-step__title {
+    font-size: 13px;
+}
