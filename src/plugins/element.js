@@ -23,7 +23,8 @@ import {
     Cascader,
     Alert,
     Tabs,TabPane,
-    Steps,Step
+    Steps,Step,
+    CheckboxGroup,Checkbox,Upload
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -59,6 +60,9 @@ Vue.use(Tabs);
 Vue.use(TabPane);
 Vue.use(Steps);
 Vue.use(Step);
+Vue.use(CheckboxGroup);
+Vue.use(Checkbox);
+Vue.use(Upload);
 
 // 全局挂载Message消息提示
 Vue.prototype.$message = Message 

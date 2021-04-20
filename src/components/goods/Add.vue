@@ -12,7 +12,7 @@
     <!-- 卡片视图区域 -->
     <el-card>
       <!-- 文字提示 -->
-      <el-alert title="消息提示的文案" type="info" center show-icon :closable="false"></el-alert>
+      <el-alert title="添加商品信息" type="info" center show-icon :closable="false"></el-alert>
       <!-- 状态步骤条 parseInt() -->
       <el-steps :space="200" :active="Number(activeIndex)" finish-status="success" align-center>
         <el-step title="基本信息"></el-step>
@@ -24,7 +24,7 @@
       </el-steps>
       <!-- tab栏 -->
       <el-form :model="addFrom" :rules="addFromRules" ref="addFromRef" label-width="100px" class="demo-ruleForm" label-position="top">
-        <el-tabs :tab-position=" 'left' "  v-model="activeIndex" :before-leave="beforeTabLeave">
+        <el-tabs :tab-position=" 'left' "  v-model="activeIndex" :before-leave="beforeTabLeave" @tab-click="tabClicked">
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addFrom.goods_name"></el-input>
@@ -43,15 +43,39 @@
                 :props="cateProps" @change="handleChange">
               </el-cascader>
             </el-form-item>
-
           </el-tab-pane>
-          <el-tab-pane label="商品参数" name="1">商品参数</el-tab-pane>
-          <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <el-tab-pane label="商品参数" name="1">
+            <!-- 渲染表单的Item项 -->
+            <el-form-item :label="item.attr_name"  v-for="item in manyTabelData" :key="item.attr_id">
+              <!-- 复选框组 -->
+              <el-checkbox-group v-model="item.attr_vals">
+                <el-checkbox border :label="cb" v-for="(cb,i) in item.attr_vals" :key="i"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品属性" name="2">
+            <el-form-item :label="item.attr_name"  v-for="item in onlyTabelData" :key="item.attr_id">
+              <el-input v-model="item.attr_vals" ></el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <!-- Upload 上传图片 -->
+            <el-upload class="upload-demo" :action="UploadURL" 
+              :on-preview="handlePreview" :on-remove="handleRemove" 
+              list-type="picture" :headers="headerObj" :on-success="handleSuccess">  <!-- headers:设置上传的请求头,使用 `Authorization` 字段提供 `token` 令牌 -->
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+
+    <!-- 图片预览 -->
+    <el-dialog title="图片预览" :visible.sync="previewVisible" width="50%">
+      <img :src="previewPath" alt="" class="previewImg">
+    </el-dialog>
 
   </div>
 </template>
@@ -69,6 +93,7 @@
           goods_weight:0,   // 商品重量
           goods_number:0,   // 商品数量
           goods_cat:[],     // 商品分类数组
+          pics:[],          // 图片的数组
         },
         // 验证规则
         addFromRules:{
@@ -96,7 +121,20 @@
           label:'cat_name', // 指定选项标签
           value:'cat_id',   // 指定选项的值
           children:'children' // 指定选项的子选项
-        }
+        },
+        // 动态参数数据列表的数组
+        manyTabelData:[],
+        // 静态属性数据列表的数组
+        onlyTabelData:[],
+        UploadURL:'http://127.0.0.1:8888/api/private/v1/upload',
+        // 图片上传组件的headers请求头对象（需要授权的 API ，必须在请求头中使用 `Authorization` 字段提供 `token` 令牌）
+        headerObj:{
+          Authorization:window.sessionStorage.getItem('token_key')
+        },
+        // 图片的Url地址
+        previewPath:'',
+        // 控制图片预览框的显示与隐藏
+        previewVisible:false
       }
     },
     created() {   // 创建实例后调用获取商品分类列表的数据
@@ -122,6 +160,7 @@
         }
         console.log(this.addFrom.goods_cat);
       },
+      // 切换标签之前的钩子函数
       beforeTabLeave (activeName,oldActiveName){ 
         // 进入（新）activeName  离开（旧）oldActiveName
         if(oldActiveName === '0' && this.addFrom.goods_cat.length !== 3){
@@ -129,12 +168,86 @@
           return false
         }
       },
+      // tab 被选中时触发的函数
+      async tabClicked (){
+        // console.log(this.activeIndex);
+        // 访问的是动态参数面板
+        if(this.activeIndex === '1'){   // 商品参数
+          // 发送获取分类参数列表的请求，注意参数
+          let { data:res } = await this.$http.get(`categories/${this.cateId}/attributes`,{
+            params:{ sel:'many' }   // 动态参数
+          })
+          if(res.meta.status !== 200) return this.$message.error('获取分类参数数据失败')
+          // 保存数据前，遍历attr_vals，并生成数组形式
+          res.data.forEach(item => {
+            // 判断级联选择器的选项值是否为空
+            item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ')
+          })
+          // console.log(res.data);
+          // 将获取的数据保存到data中
+          this.manyTabelData = res.data
+        }else if(this.activeIndex === '2'){   // 商品属性
+           // 发送获取分类参数列表的请求，注意参数
+          let { data:res } = await this.$http.get(`categories/${this.cateId}/attributes`,{
+            params:{ sel:'only' } // 静态属性
+          })
+          if(res.meta.status !== 200) return this.$message.error('获取分类参数数据失败')
+          // console.log(res.data);
+          // 将获取的数据保存到data中
+          this.onlyTabelData = res.data
+          // console.log(this.onlyTabelData);
+        }
+      },
+      // 处理图片预览效果
+      handlePreview (file){
+        // console.log(file);
+        // 获取图片的Url地址
+        this.previewPath = file.response.data.url
+        // console.log(this.imgUrl);
+        // 显示预览框
+        this.previewVisible = true
+      },
+      // 处理移除图片的操作
+      handleRemove (file){
+        // console.log(file);
+        // 1,获取将要删除的图片的临时路径
+        let filePath = file.response.data.tmp_path
+        // 2.从pics数组中,找到这个图片对应的索引值
+        let i = this.addFrom.pics.findIndex(x => x.pic === filePath)
+        // 3.调用数组的splice方法,把图片信息对象,从pics数组中移除
+        this.addFrom.pics.splice(i,1)
+        console.log(this.addFrom);
+      },
+      // 监听图片上传成功的事件函数
+      handleSuccess (response){
+        // console.log(response);
+        // 拼接得到一个图片信息对象
+        let picInfo = { pic:response.data.tmp_path}
+        // 将图片信息对象，依次添加到data定义的图片数组中
+        this.addFrom.pics.push(picInfo)
+        console.log(this.addFrom);
+      },
+    },
+    computed:{
+      // 获取三级分类Id
+      cateId (){
+        if(this.addFrom.goods_cat.length === 3){
+          return this.addFrom.goods_cat[2]
+        }
+      },
     },
   }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 
-
+// 复选框组样式
+.el-checkbox {
+  margin: 0 5px 0 0 !important;
+}
+// 图片预览样式
+.previewImg {
+  width: 100%;
+}
  
 </style>
