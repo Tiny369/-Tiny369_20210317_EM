@@ -67,7 +67,12 @@
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器 -->
+            <quill-editor v-model="addFrom.goods_introduce"></quill-editor>
+            <!-- 添加商品按钮 -->
+            <el-button type="primary" class="btnAdd" @click="addGoods">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
@@ -81,6 +86,8 @@
 </template>
 
 <script type="text/ecmascript-6">
+// 引入lodash库
+import _ from 'lodash'  
   export default {
     data() {
       return {
@@ -94,6 +101,8 @@
           goods_number:0,   // 商品数量
           goods_cat:[],     // 商品分类数组
           pics:[],          // 图片的数组
+          goods_introduce:'',  // 商品介绍
+          attrs:[]    // 商品的参数（数组），包含 `动态参数` 和 `静态属性`
         },
         // 验证规则
         addFromRules:{
@@ -227,6 +236,43 @@
         this.addFrom.pics.push(picInfo)
         console.log(this.addFrom);
       },
+      // 添加商品
+      addGoods (){
+        console.log(this.addFrom);
+        // 预验证
+        this.$refs.addFromRef.validate(async valid => {
+          if(!valid) return this.$message.error('请填写必要的表单项')
+          // 执行添加的业务逻辑
+          // lodash 深拷贝表单对象
+          let from = _.cloneDeep(this.addFrom)  
+          from.goods_cat = from.goods_cat.join(',')
+          // 处理attrs商品的参数
+          // 动态参数
+          this.manyTabelData.forEach(item => {    
+            let newInfo = { 
+              attr_id:item.attr_id,
+              attr_value:item.attr_vals.join(' '), 
+            }
+            this.addFrom.attrs.push(newInfo)
+          })
+          // 静态属性
+          this.onlyTabelData.forEach(item => {    
+             let newInfo = { 
+              attr_id:item.attr_id,
+              attr_value:item.attr_vals, 
+            }
+            this.addFrom.attrs.push(newInfo)
+          })
+          // 将表单对象中处理好的attrs商品参数，赋值给深拷贝的对象（from）的attrs，最后需要提交的时from对象
+          from.attrs = this.addFrom.attrs
+          console.log(from);
+          // 发起请求添加商品,商品的名称必须是唯一的
+          let { data:res } = await this.$http.post('goods',from)
+          if(res.meta.status !== 201) return this.$message.error('添加商品失败')
+          this.$message.success('添加商品成功')
+          this.$router.push('/goods')
+        })
+      },
     },
     computed:{
       // 获取三级分类Id
@@ -249,5 +295,9 @@
 .previewImg {
   width: 100%;
 }
- 
+
+// 商品内容面板的样式
+.btnAdd {
+  margin-top: 15px;
+}
 </style>

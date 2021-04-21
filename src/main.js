@@ -11,6 +11,12 @@ import './assets/css/Global.css'
 import './plugins/element.js'
 // 引入第三方插件（vue-table-with-tree-grid）
 import ZkTable from 'vue-table-with-tree-grid'
+// 引入第三方插件（vue-quill-editor）,富文本编辑器
+import VueQuillEditor from 'vue-quill-editor'
+// 引入第三方插件（vue-quill-editor）富文本编辑器的样式
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
 // 引入axios
 import axios from 'axios'
@@ -26,6 +32,8 @@ Vue.prototype.$http = axios
 
 // 注册第三方插件（vue-table-with-tree-grid）
 Vue.component('tree-table',ZkTable)
+// 注册第三方插件（vue-quill-editor）富文本编辑器,全局可用组件
+Vue.use(VueQuillEditor)
 
 // 创建全局事件过滤器，处理时间格式
 Vue.filter('dateFormat',function (originVal){
