@@ -19,6 +19,6 @@ npm run build
 ```
 npm run lint
 ```
-### order Branch
+### master Branch
 UpDate 20210422 22：00
 
