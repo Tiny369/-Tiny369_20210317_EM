@@ -24,7 +24,8 @@ import {
     Alert,
     Tabs,TabPane,
     Steps,Step,
-    CheckboxGroup,Checkbox,Upload
+    CheckboxGroup,Checkbox,Upload,
+    Timeline,TimelineItem,Radio,RadioGroup
 } from 'element-ui';     // 引入.....Message消息提示
 
 Vue.use(Button);
@@ -63,6 +64,11 @@ Vue.use(Step);
 Vue.use(CheckboxGroup);
 Vue.use(Checkbox);
 Vue.use(Upload);
+Vue.use(Timeline);
+Vue.use(TimelineItem);
+Vue.use(Radio);
+Vue.use(RadioGroup);
+
 
 // 全局挂载Message消息提示
 Vue.prototype.$message = Message 
