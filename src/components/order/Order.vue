@@ -229,7 +229,7 @@ import citydate from './citydata.js'
         // 显示对话框
         this.addressVisible = true
       },
-      // 监听对话框的关闭时间
+      // 监听对话框的关闭事件
       addressDialogClosed (){
         // 重置表单
         this.$refs.addressFormRef.resetFields()
