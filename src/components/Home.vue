@@ -3,7 +3,7 @@
     <!-- 头部区域 -->
     <el-header>
       <div>
-        <img src="../assets/logo.gif" alt="" title="问购网" >
+        <img src="../assets/wgw.jpg" alt="" title="问购网" >
         <span>问购网电商后台管理系统</span>
       </div>
       <el-button type="info"  @click="logout">退出</el-button>
@@ -131,6 +131,7 @@
     display: flex;
     align-items: center;
     >img {
+      margin-right: 5px;
       width: 61px;
       height: 56px;
     }
