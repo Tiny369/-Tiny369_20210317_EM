@@ -4,7 +4,7 @@ module.exports = {
         open:true
     },
     // 关闭Eslint的规则
-    lintOnSave:false
+    lintOnSave:false,
     // 原生webpack配置
     /* configureWebpack:{
     } */
@@ -19,5 +19,24 @@ module.exports = {
             }
         }
     }, */
-    
+    // 通过 chainWebpack 自定义打包入口
+    chainWebpack: config => {
+        // 发布模式
+        config.when(process.env.NODE_ENV === 'production', config => {      
+            config.entry('app').clear().add('./src/main-prod.js')
+            // 通过 externals 加载外部 CDN 资源
+            config.set('externals', {
+                vue: 'Vue', 'vue-router': 'VueRouter',
+                axios: 'axios',
+                lodash: '_',
+                echarts: 'echarts',
+                nprogress: 'NProgress', 'vue-quill-editor': 'VueQuillEditor'
+            })
+        })
+        // 开发模式
+        config.when(process.env.NODE_ENV === 'development', config => {
+            config.entry('app').clear().add('./src/main-dev.js')
+        })
+    }
+
 }
